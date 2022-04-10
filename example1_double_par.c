@@ -113,33 +113,29 @@ int main(int argc, char *argv[])
     for (int time = 0; time < NB_TIMES;time++){
         genann *ann1 = genann_init(4, 1, 3, 1);
         genann *ann2 = genann_init(2, 1, 2, 1);
+#pragma omp parallel
+#pragma omp single
+{
         debut = my_gettimeofday();
+
+#pragma omp task shared (ann1)
+{
         for (i = 0; i < nb; ++i) {
             for (int j = 0; j <16;j++){
                 genann_train(ann1, input_ANN1[j], output_ANN1 + j, 3);
             }
         }
-  // int failTemp= 0;
-  //       for (int j = 0; j <16;j++){
-  //         double rep = *genann_run(ann1, input_ANN1[j]);
-  //         if(floor(rep+0.5) != floor(output_ANN1[j])){
-  //           failTemp++;
-  //         } 
-  //       }
-  //       printf("Ann1 : %d\n",(failTemp*100)/16);
+}
+#pragma omp task shared (ann2)
+{
         for (i = 0; i < nb; ++i) {
             for (int j = 0; j <4;j++){
                 genann_train(ann2, input_ANN2[j], output_ANN2 + j, 3);
             }
         }
-        // for (int j = 0; j <4;j++){
-        //   double rep =*genann_run(ann2, input_ANN2[j]);
-        //   if(floor(rep+0.5) != floor(output_ANN2[j])){
-        //     failTemp++;
-        //   } 
-        // }
-        // printf("Ann2 : %d\n",(failTemp*100)/16);
+}
         fin = my_gettimeofday();
+}
         times[time] = fin - debut;
         fail[time] = 0;
         double rep[2],repF;

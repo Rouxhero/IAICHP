@@ -29,27 +29,75 @@ int main(int argc, char *argv[])
     /* If you don't get a good result, try again for a different result. */
     srand(time(0));
     double debut=0.0, fin=0.0;
-    double input[8][4] = {
-        {0,0,0,0} ,
-        {0,0,0,1} ,
-        {0,1,1,0} ,
-        {1,0,1,0} ,
-        {1,1,0,1} ,
-        {1,1,0,0} ,
-        {0,1,1,1} ,
-        {1,0,1,1} ,
-    
+    double input[32][6] = {
+        {0, 0, 0, 0, 0, 0},
+        {0, 0, 0, 1, 1, 0},
+        {0, 0, 1, 0, 1, 0},
+        {0, 0, 1, 1, 0, 0},
+        {0, 1, 0, 0, 1, 0},
+        {0, 1, 0, 1, 0, 0},
+        {0, 1, 1, 0, 0, 0},
+        {0, 1, 1, 1, 1, 0},
+        {1, 0, 0, 0, 1, 0},
+        {1, 0, 0, 1, 0, 0},
+        {1, 0, 1, 0, 0, 0},
+        {1, 0, 1, 1, 1, 0},
+        {1, 1, 0, 0, 0, 0},
+        {1, 1, 0, 1, 1, 0},
+        {1, 1, 1, 0, 1, 0},
+        {1, 1, 1, 1, 0, 0},
+        {0, 0, 0, 0, 0, 1},
+        {0, 0, 0, 1, 1, 1},
+        {0, 0, 1, 0, 1, 1},
+        {0, 0, 1, 1, 0, 1},
+        {0, 1, 0, 0, 1, 1},
+        {0, 1, 0, 1, 0, 1},
+        {0, 1, 1, 0, 0, 1},
+        {0, 1, 1, 1, 1, 1},
+        {1, 0, 0, 0, 1, 1},
+        {1, 0, 0, 1, 0, 1},
+        {1, 0, 1, 0, 0, 1},
+        {1, 0, 1, 1, 1, 1},
+        {1, 1, 0, 0, 0, 1},
+        {1, 1, 0, 1, 1, 1},
+        {1, 1, 1, 0, 1, 1},
+        {1, 1, 1, 1, 0, 1},
+        
     };
-    const double output[8] = {
-        0, 
+    const double output[32] = {
+        0,
         1,
         1,
+        0,
+        1,
+        0,
+        0,
         1,
         1,
         0,
         0,
+        1,
         0,
-        };
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1
+      };
     int i;
 
     /* New network with 2 inputs,
@@ -64,18 +112,18 @@ int main(int argc, char *argv[])
     double times[NB_TIMES]; 
     int fail[NB_TIMES]; 
     for (int time = 0; time < NB_TIMES;time++){
-        genann *ann = genann_init(4, 1, 3, 1);
+        genann *ann = genann_init(6, 2, 4, 1);
         debut = my_gettimeofday();
 #pragma omp simd
         for (i = 0; i < nb; ++i) {
-            for (int j = 0; j <8;j++){
+            for (int j = 0; j <32;j++){
                 genann_train(ann, input[j], output + j, 3);
             }
         }
         fin = my_gettimeofday();
         times[time] = fin - debut;
         fail[time] = 0;
-        for (int j = 0; j <8;j++){
+        for (int j = 0; j <32;j++){
           double rep = *genann_run(ann, input[j]);
           if(floor(rep+0.5) != output[j]){
             fail[time]++;
@@ -97,6 +145,6 @@ int main(int argc, char *argv[])
     fprintf( stdout, " %f",timeTotal/NB_TIMES);
     /* Run the network and see what it predicts. */
     // printf("trained Version :\n");
-    printf(" %d \n",((failTotal/NB_TIMES)*100)/8);
+    printf(" %d \n",((failTotal/NB_TIMES)*100)/32);
     return 0;
 }
